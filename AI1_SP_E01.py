@@ -21,7 +21,7 @@ archivo (string): el archivo del que se quiere extraer el contenido.
 Valor de Retorno:
 contenido del archivo (string)
 
-Complejidad:
+Complejidad: O(n)
 """
 def leer_archivo(archivo):
     with open(archivo, 'r') as file:
