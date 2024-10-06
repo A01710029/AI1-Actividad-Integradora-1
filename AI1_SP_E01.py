@@ -27,19 +27,6 @@ def leer_archivo(archivo):
     with open(archivo, 'r') as file:
         return file.read()
 
-# Obtener contenido de los archivos de transmisión
-trans01 = leer_archivo("transmission01.txt")
-trans02 = leer_archivo("transmission02.txt")
-
-transmissions = [trans01, trans02]
-
-# Obtener contenido de los archivos mcode
-mcode01 = leer_archivo("mcode01.txt")
-mcode02 = leer_archivo("mcode02.txt")
-mcode03 = leer_archivo("mcode03.txt")
-
-mcodes = [mcode01, mcode02, mcode03]
-
 """
 Compara el contenido de mcode con el de transmission 
 para encontrar si se repite una subcadena utilizando el algoritmo KMP.
@@ -131,9 +118,84 @@ def comparar_mcodes(mcodes, transmission, nombre_transmission):
         else:
             print(f"mcode{i+1:02d} en {nombre_transmission}: False")
 
+"""
+Función para encontrar el palíndromo más largo en una cadena de texto
+utilizando el algoritmo de Manacher.
+
+Parámetros:
+transmission (string): el contenido de un archivo de transmission.
+
+Valor de Retorno:
+(start, end) (tuple): una tupla con la posición inicial y final del palíndromo más largo.
+
+Complejidad: O(n)
+"""
+def manacher(transmission):
+    # Se cambia la cadena original para siempre hacerla impar
+    T = '|' + '|'.join(transmission) + '|'
+    n = len(T)
+    L = [0] * n 
+    
+    # Se inicializan las variables del centro y límite derecho del palíndromo más largo
+    C, R = 0, 0  
+
+    # Se inicializan las variables para el palíndromo más largo
+    max_len = 0 
+    center_index = 0  # Centro del palíndromo más largo
+    
+    for i in range(n):
+        mirror = 2 * C - i  # Índice reflejado respecto al centro actual
+        
+        # Si el índice actual está dentro del límite derecho 
+        if i < R:
+            # Se usa la simetria para acelerar el proceso
+            L[i] = min(R - i, L[mirror])
+        
+        # Se verifica si el caracter de la izquierda y derecha son iguales
+        # Si lo son, se expande L[i] (radio del palíndromo)
+        while i + L[i] + 1 < n and i - L[i] - 1 >= 0 and T[i + L[i] + 1] == T[i - L[i] - 1]:
+            L[i] += 1
+        
+        # Si se encuentra un palíndromo más largo, se actualiza el centro y el límite derecho
+        # El centro es igual a i (posición actual) y el límite derecho es igual a i + L[i] (radio del palíndromo)
+        if i + L[i] > R:
+            C, R = i, i + L[i]
+        
+        # Si el palíndromo actual es más largo que el máximo encontrado hasta ahora
+        # Se actualiza la longitud del palíndromo más largo y su centro
+        if L[i] > max_len:
+            max_len = L[i]
+            center_index = i
+    
+    # Se saca la posición inicial y final del palíndromo más largo
+    start = (center_index - max_len) // 2
+    end = start + max_len - 1
+    
+    return (start + 1, end + 1)
+
+# Obtener contenido de los archivos de transmisión
+trans01 = leer_archivo("transmission01.txt")
+trans02 = leer_archivo("transmission02.txt")
+
+transmissions = [trans01, trans02]
+
+# Obtener contenido de los archivos mcode
+mcode01 = leer_archivo("mcode01.txt")
+mcode02 = leer_archivo("mcode02.txt")
+mcode03 = leer_archivo("mcode03.txt")
+
+mcodes = [mcode01, mcode02, mcode03]
+
 # Primero comparar todos los mcodes contra transmission1
 comparar_mcodes(mcodes, trans01, "transmission01")
 
 # Luego comparar todos los mcodes contra transmission2
 comparar_mcodes(mcodes, trans02, "transmission02")
 
+start01, end01 = manacher(trans01)
+print("\nPalíndromo transmission01: " + str(start01) + " " + str(end01))
+print(f"Palíndromo más largo en transmission01: {trans01[start01 - 1:end01]}")
+
+start02, end02 = manacher(trans02)
+print("\nPalíndromo transmission02: " + str(start02) + " " + str(end02))
+print(f"Palíndromo más largo en transmission02: {trans02[start02 - 1:end02]}")
