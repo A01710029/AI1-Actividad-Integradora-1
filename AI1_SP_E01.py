@@ -173,6 +173,51 @@ def manacher(transmission):
     
     return (start + 1, end + 1)
 
+"""
+Función para encontrar las subcadenas comunes más largas entre dos cadenas
+utilizando Longest Common Substring.
+
+Parámetros:
+transmission1 (string): el contenido del primer archivo de transmission.
+transmission2 (string): el contenido del segundo archivo de transmission.
+
+Valor de Retorno:
+results (list): una lista con las posiciones iniciales y finales de los subcadenas comunes más largas.
+
+Complejidad: O(n * m)
+"""
+def longestCommonSubstrings(transmission1, transmission2):
+    # Se saca la longitud de las cadenas
+    len1 = len(transmission1)
+    len2 = len(transmission2)
+    
+    # Se crea la matriz con todos los valores en 0
+    matrix = []
+    for _ in range(len1 + 1):
+        matrix.append([0] * (len2 + 1))
+
+    max_len = 0
+
+    # En caso que haya 2 de la misma longitud se almacena en un arreglo
+    results = set()
+
+    for i in range(1, len1 + 1):
+        for j in range(1, len2 + 1):
+            # Si los caracteres coinciden se incrementa el valor en la matriz
+            if transmission1[i - 1] == transmission2[j - 1]:
+                matrix[i][j] = matrix[i - 1][j - 1] + 1
+
+                # Si la longitud es mayor a la máxima encontrada hasta ahora
+                # Se actualiza la longitud máxima y se reinicia la lista de resultados
+                if matrix[i][j] > max_len:
+                    max_len = matrix[i][j]
+                    results = {(i - max_len, i)}
+                # Si hay más de una subcadena de la misma longitud se añade a la lista
+                elif matrix[i][j] == max_len:
+                    results.add((i - max_len + 1, i)) 
+
+    return list(results)
+
 # Obtener contenido de los archivos de transmisión
 trans01 = leer_archivo("transmission01.txt")
 trans02 = leer_archivo("transmission02.txt")
@@ -199,3 +244,8 @@ print(f"Palíndromo más largo en transmission01: {trans01[start01 - 1:end01]}")
 start02, end02 = manacher(trans02)
 print("\nPalíndromo transmission02: " + str(start02) + " " + str(end02))
 print(f"Palíndromo más largo en transmission02: {trans02[start02 - 1:end02]}")
+
+matches = longestCommonSubstrings(trans01, trans02)
+print(f"Los substrings más largos entre las dos transmisiones son:")
+for start, end in matches:
+    print(f"Inicia en {start} y termina en {end}")
