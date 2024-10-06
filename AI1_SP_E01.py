@@ -9,7 +9,6 @@ Jesús Alejandro Cedillo Zertuche - A01705442
 
 Fecha de Creación:
 06/10/2024
-
 """
 
 """
@@ -182,7 +181,8 @@ transmission1 (string): el contenido del primer archivo de transmission.
 transmission2 (string): el contenido del segundo archivo de transmission.
 
 Valor de Retorno:
-results (list): una lista con las posiciones iniciales y finales de los subcadenas comunes más largas.
+start_trans01 (int): posición inicial de la subcadena común más larga.
+end_trans01 (int): posición final de la subcadena común más larga.
 
 Complejidad: O(n * m)
 """
@@ -191,32 +191,37 @@ def longestCommonSubstrings(transmission1, transmission2):
     len1 = len(transmission1)
     len2 = len(transmission2)
     
-    # Se crea la matriz con todos los valores en 0
-    matrix = []
-    for _ in range(len1 + 1):
-        matrix.append([0] * (len2 + 1))
+    # Crear una tabla para almacenar las longitudes de las subcadenas comunes
+    tabla = [[0] * (len2 + 1) for _ in range(len1 + 1)]
+    
+    # Variable para almacenar la longitud máxima de la subcadena común
+    max_length = 0
+    
+    # Variables para almacenar los índices inicio/fin del substring común más largo
+    start_trans01 = 0
+    end_trans01 = 0
 
-    max_len = 0
-
-    # En caso que haya 2 de la misma longitud se almacena en un arreglo
-    results = set()
-
+     # Rellenar la tabla comparando los caracteres de ambos strings
     for i in range(1, len1 + 1):
         for j in range(1, len2 + 1):
-            # Si los caracteres coinciden se incrementa el valor en la matriz
             if transmission1[i - 1] == transmission2[j - 1]:
-                matrix[i][j] = matrix[i - 1][j - 1] + 1
+                tabla[i][j] = tabla[i - 1][j - 1] + 1
+                
+                if tabla[i][j] > max_length:
+                    max_length = tabla[i][j]
+                    end_trans01 = i
+            else:
+                tabla[i][j] = 0
+    
+    # Si no se encuentra una subcadena común
+    if max_length == 0:
+        return None, None
+    
+    # Cálculo del índice de inicio y fin en transmission01
+    start_trans01 = end_trans01 - max_length
+    end_trans01 = end_trans01 - 1
 
-                # Si la longitud es mayor a la máxima encontrada hasta ahora
-                # Se actualiza la longitud máxima y se reinicia la lista de resultados
-                if matrix[i][j] > max_len:
-                    max_len = matrix[i][j]
-                    results = {(i - max_len, i)}
-                # Si hay más de una subcadena de la misma longitud se añade a la lista
-                elif matrix[i][j] == max_len:
-                    results.add((i - max_len + 1, i)) 
-
-    return list(results)
+    return start_trans01, end_trans01
 
 # Obtener contenido de los archivos de transmisión
 trans01 = leer_archivo("transmission01.txt")
@@ -245,7 +250,9 @@ start02, end02 = manacher(trans02)
 print("\nPalíndromo transmission02: " + str(start02) + " " + str(end02))
 print(f"Palíndromo más largo en transmission02: {trans02[start02 - 1:end02]}")
 
-matches = longestCommonSubstrings(trans01, trans02)
-print(f"Los substrings más largos entre las dos transmisiones son:")
-for start, end in matches:
-    print(f"Inicia en {start} y termina en {end}")
+start, end = longestCommonSubstrings(trans01, trans02)
+
+if start is not None and end is not None:
+    print(f"El substring común más largo: {start} {end} ('{trans01[start:end+1]}')")
+else:
+    print("No se encontró un substring común.")
