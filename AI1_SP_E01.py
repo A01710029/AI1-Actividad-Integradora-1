@@ -19,7 +19,7 @@ Parámetros:
 archivo (string): el archivo del que se quiere extraer el contenido.
 
 Valor de Retorno:
-
+contenido del archivo (string)
 
 Complejidad:
 """
